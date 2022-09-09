@@ -1,12 +1,25 @@
 {
   "name": "picatjs",
   "version": "0.0.1",
-  "description": "Picat programming language in JavaScript",
+  "description": "Picat and Prolog programming languages in JavaScript",
   "main": "index.js",
   "scripts": {
     "test": "mocha test"
   },
+  "directories": {
+    "test": "test"
+  },
+  "bin": {
+    "picatjs": "./index.js"
+  },
   "author": "Andrey Gershun",
   "license": "MIT",
-  "type": "module" 
+  "type": "module",
+  "keywords": [
+    "picat",
+    "prolog",
+    "logic-programming",
+    "javascript"
+  ],
+  "homepage": "https://github.com/agershun/picatjs"  
 }
