@@ -1,0 +1,12 @@
+{
+  "name": "picatjs",
+  "version": "0.0.1",
+  "description": "Picat programming language in JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "author": "Andrey Gershun",
+  "license": "MIT",
+  "type": "module" 
+}
