@@ -1,0 +1,5 @@
+compress([X|Ys@[X|_]]) = compress(Ys).
+compress([X|Ys]) = [X|compress(Ys)].
+compress(Ys) = Ys.
+
+main => println(compress([1,1,2,2,2,3,4,4,5])).

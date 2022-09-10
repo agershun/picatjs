@@ -1,9 +1,8 @@
 import {PiInt} from './PiInt.js';
 import {PiBool} from './PiBool.js';
 import {PiTerm} from './PiTerm.js';
-import {PiDisjunction} from './PiDisjunction.js';
 import {mergeBindings} from './utils.js';
-
+import {PiDisjunction} from './PiDisjunction.js';
 
 export class PiConjunction extends PiTerm {
     constructor(args) {

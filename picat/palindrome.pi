@@ -1,0 +1,9 @@
+      myReverse(L) = myReverse(L,[]).
+
+      myReverse([],R) = R.
+      myReverse([X|Xs],R) = myReverse(Xs,[X|R]).
+
+      isPalindrome(Xs) => ==(Xs,myReverse(Xs)).
+
+      main => isPalindrome([1,2,3,3,2,1]),print(true).
+            %main => isPalindrome([1,2,3,4,5,6]),print(false).

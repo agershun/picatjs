@@ -1,0 +1,10 @@
+ma => in(E,[1,2,3]),println(E).
+
+  main => println(perms([1,2,3])).
+
+  perms([]) = [[]].
+%  perms(Lst) = [[E|P] : E in Lst, P in perms(Lst.delete(E))].
+%  perms(Lst) = [[E|P] : in(E,Lst), in(P,perms(Lst.delete(E)))].
+  perms(Lst) = [[E|P] : (in(E,Lst), in(P,perms(delete(Lst,E))))].
+
+ % perms(Lst) = :([E|P],[in(E,Lst),in(P,perms(delete(Lst,E)))]).

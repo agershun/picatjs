@@ -1,0 +1,8 @@
+main => println(fact(100)).
+
+%fact(1) = 1.
+=(fact(1),1).
+=(fact(N),F),>(N,1) => =(F,*(N,fact(-(N,1)))).
+%=(fact(N),F) ?=> >(N,1),=(F,*(N,fact(-(N,1)))).
+
+%=(fact(N),F) :- >(N,1),!,=(F,*(N,fact(-(N,1)))).

@@ -35,7 +35,7 @@ Due Picat (and this JS implementation) is based on Prolog language some Prolog p
 ## JavaScript implementation
 
 ```js
-	picat(<program>, <goal>, [<parameters array>], <flag>);
+	picat(<program>, <goal>, [<parameters array>], <flag></flag>);
 ```
 
 ## Command line
@@ -71,8 +71,5 @@ This JavaScript implementation is based on the article [Solving riddles with Pro
 # License
 
 This software is released under [MIT License](LICENSE)
-
-# Author
-Andrey Gershun
 
 Copyright (c) 2022 Andrey Gershun

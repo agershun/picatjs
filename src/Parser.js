@@ -1,5 +1,5 @@
-import {PiTerm} from './PiTerm.js';
 import {PiRule} from './PiRule.js';
+import {PiTerm} from './PiTerm.js';
 import {PiVar} from './PiVar.js';
 import {PiList} from './PiList.js';
 import {PiInt} from './PiInt.js';
@@ -8,9 +8,11 @@ import {TRUE,FAIL} from './PiBool.js';
 
 
 export function parser(tokens) {
-    var current, done, scope;
+    var current, done, scope, prev;
+    var ats = [];
     function next() {
         var next = tokens.next();
+        prev = current;
         current = next.value;
         done = next.done;
     }
@@ -52,7 +54,13 @@ export function parser(tokens) {
                     next(); // eat 
                     tail = parseTerm();
                 }
-                if (current !== ',' && current !== ']') {
+                if(current === '@') {
+                    let v = prev;
+                    next(); // eat 
+                    let p = parseTerm();
+                    ats.push(new PiTerm('=',[new PiVar(v),p]));
+                }
+                if (current !== ',' && current !== ']' && current !== '@') {
                     throw new SyntaxError('Expected , or ] in term but got ' + current);
                 }
                 if (current === ',') {
@@ -100,6 +108,7 @@ export function parser(tokens) {
 
 
     function parseRule() {
+        ats = [];
         let functor;
         var head = parseTerm();
         var args = [];
@@ -165,11 +174,12 @@ export function parser(tokens) {
 
 
         } else if (current !== ':-') {
-            console.log(159,current);
+            // console.log(159,current);
             throw new SyntaxError('Expected :- in rule but got ' + current);
         }
         while (current !== '.') {
             args.push(parseTerm());
+            // console.log(173,args);
             if (current !== ',' && current !== ';' && current !== '.') {
                 throw new SyntaxError('Expected , or ) in term but got ' + current);
             }
@@ -182,6 +192,9 @@ export function parser(tokens) {
         }
         next(); // eat .
         var body;
+        if(ats.length > 0) {
+            args = ats.concat(args);
+        }
         if (args.length === 1) {
             // body is a regular Term
             body = args[0];
@@ -190,6 +203,11 @@ export function parser(tokens) {
             body = new PiConjunction(args);
         }
   //      if(type == 'rule') {
+        // if(ats.length > 0) {
+
+        //     console.log(208,(new PiRule(functor,head, body)).toString());
+        // }
+
             return new PiRule(functor,head, body);    
         // } else {
         //     return new Rule(head, body);

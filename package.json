@@ -12,6 +12,13 @@
   "bin": {
     "picatjs": "./index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/agershun/picatjs.git"
+  },  
+  "bugs": {
+    "url": "https://github.com/agershun/picatjs/issues"
+  },  
   "author": "Andrey Gershun",
   "license": "MIT",
   "type": "module",
@@ -21,5 +28,8 @@
     "logic-programming",
     "javascript"
   ],
-  "homepage": "https://github.com/agershun/picatjs"  
+  "homepage": "https://github.com/agershun/picatjs",
+  "devDependencies": {
+    "mocha": "^10.0.0"
+  }    
 }
