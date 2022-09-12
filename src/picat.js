@@ -2,6 +2,7 @@ import {lexer} from './Lexer.js';
 import {parser} from './Parser.js';
 import {PiDatabase} from './PiDatabase.js';
 import {PiInt} from './PiInt.js';
+import {PiBool} from './PiBool.js';
 import {PiTerm} from './PiTerm.js';
 import {PiList} from './PiList.js';
 
@@ -121,9 +122,13 @@ picat.var = function (prog,que) {
 
 picat.val = function (prog,que) {
     let {result,database} = picat(prog,`return(${que})`);
+    console.log(database.toString());
     let res = result.next();
     if(res.done) return;
-    else return database.val.val;
+    else {
+        if(database.val instanceof PiInt || database.val instanceof PiBool ) return database.val.val;
+        else return database.val;
+    }
 }
 
 

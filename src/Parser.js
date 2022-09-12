@@ -60,6 +60,13 @@ export function parser(tokens) {
                     next(); // eat 
                     let p = parseTerm();
                     ats.push(new PiTerm('=',[new PiVar(v),p]));
+                    if(tail) {
+                        tail = p;
+                    } else {
+                        items.pop();
+                        items.push(p);                        
+                    }
+                    // console.log(63,current,v,p,items);
                 }
                 if (current !== ',' && current !== ']' && current !== '@') {
                     throw new SyntaxError('Expected , or ] in term but got ' + current);
@@ -250,9 +257,12 @@ export function parser(tokens) {
         // if(functor == '=>') {
         //     console.log(212,functor,head,cond, body);
         // }
-        if(functor == '=>' || functor == '?=>' || functor == ':-' ) {        
+        if(functor == '=>' || functor == '?=>' || functor == ':-' ) {  
+//console.log(223,body);
+
             return new PiRule(functor,head, cond, body);    
         } else if(functor == '=') {
+//console.log(258,body);
             // expr = body[0];
             // body = body.slice(1);
             // console.log(246,head, expr, cond, body);

@@ -35,6 +35,8 @@ export class PiTerm {
     }
 
     value(database) {
+        database.val = undefined;
+
         if(this.functor == 'eval') {
     //        console.log(224,this.args[0]);
     //        if(this.args[0] instanceof Term && this.args[0].functor == '$') {
@@ -213,7 +215,7 @@ export class PiTerm {
                 return this;
         } else {
             // Попробовать найти как цель
-    //        console.log('Пробуем доказать');
+            console.log('Пробуем доказать',this.toString());
             let ars = [];
             for(let arg of this.args) {
                 ars.push(arg.value(database));
@@ -222,6 +224,7 @@ export class PiTerm {
             let pat = new PiTerm(this.functor,ars);
 
             for (var i = 0, rule; rule = database.rules[i]; i++) {
+console.log(227,rule.toString());                   
                 if(this.functor != rule.head.functor) continue;
                 if(this.args.length != rule.head.args.length) continue;
                 if(!['='].includes(rule.functor)) continue;
@@ -241,22 +244,36 @@ export class PiTerm {
                         let condr = cond.query(database).next();
                         if(condr.done) continue;
                     }
-
+console.log(244,this.toString(),fresh.expr.toString());
                     if(!fresh.body) {
-                        var expr = fresh.expr.substitute(match);
-                        return expr.value(database);
-                    } else if(fresh.body) {
-                        // let resv = new PiVar('RESULT');
-                        let bodyn = new PiConjunction([fresh.body, new PiTerm('return',[fresh.expr]) ]);
-// console.log(251,match,bodyn.args);
-                        let body = bodyn.substitute(match);
-// console.log(253,match,body);
-//console.log(248,body);              
-                        let bodyr = database.query(body).next();
-// console.log(249,bodyr.value.args[1]);                        
-                        if(bodyr.done) continue;
+                        this.cut = true;
 
-                        return database.val;
+                        var expr = fresh.expr.substitute(match);                        
+console.log(247,expr.value(database));                        
+                        
+                        let res = expr.value(database);
+console.log(254,this.toString()+' ==>> '+res.toString());
+console.trace(256);
+//debugger1();                       
+                        return res;
+                        // return;
+                    } else {
+                        if(!this.cut) {
+                            // let resv = new PiVar('RESULT');
+                            let bodyn = new PiConjunction([fresh.body, new PiTerm('return',[fresh.expr]) ]);
+    console.log(251,bodyn.args);
+                            let body = bodyn.substitute(match);
+    // console.log(253,match,body);
+    //console.log(248,body);              
+                            let bodyr = database.query(body).next();
+    // console.log(249,bodyr.value.args[1]);                        
+console.log(272,bodyr.done,database.val,bodyn.toString());                            
+                            this.cut = true;
+                            if(bodyr.done && !database.val) return;
+                            return database.val;
+                        } else {
+console.log(271,'cut');     return;
+                        }
                         // let body1 = bodyr.value.substitute(match);
 //console.log(250,match);
 //                        var expr = fresh.expr.substitute(match);

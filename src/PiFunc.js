@@ -5,6 +5,7 @@ export class PiFunc {
         this.expr = expr;
         this.cond = cond;
         this.body = body;
+// console.log(8,this.head.args);
     }
 
     inst(env) {
@@ -18,8 +19,8 @@ export class PiFunc {
 
     toString() {
         let s = this.head.toString() + ' = ' + this.expr.toString();
-        if(this.cond) s += ','+this.cond.map(d=>d.toString()).join(',');
-        if(this.body) s += this.functor+' ' + this.body.toString();
+        if(this.cond) s += ','+this.cond.toString();
+        if(this.body) s += ' => ' + this.body.toString();
         s += '.';
         return s;
     };

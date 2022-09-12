@@ -148,9 +148,10 @@ export class PiDatabase {
             // console.log(goal.args[0].value(this).toString());
             // yield goal;
         } else if(goal.functor == 'println') {
-            // console.log(501,goal.args[0]);
+            console.log(501,goal.toString(),goal.args[0].toString());
             // console.log(501,goal.args[0].value(this));
-            console.log(goal.args[0].value(this).toString());
+            let res = goal.args[0].value(this);
+            console.log(154,res);
             yield goal;
          } else if(goal.functor == 'print') {
             if(globalThis.process) {
@@ -174,10 +175,11 @@ export class PiDatabase {
         } else if(goal instanceof PiConjunction) {
             //let fgoal = goal.inst(new Map);
             //console.log(112,[...goal.query(this)]);
-            for(let sol of goal.query(this)) {
-//                console.log(116,sol);
-                yield sol;
-            }
+            yield *goal.query(this)
+//             for(let sol of goal.query(this)) {
+// //                console.log(116,sol);
+//                 yield sol;
+//             }
 
         } else {
 
@@ -215,10 +217,12 @@ export class PiDatabase {
                         for (var item of body.query(this)) {
 //console.log(205,item);
                             if(!this.cut) {
+        console.log(218,rule.toString());
                                 var ret = head.substitute(body.match(item));
                                 yield ret;
                             }
                             this.cut = true;
+                            return;
                         }
                     } else if(rule.functor == '?=>') {
                         var body = fresh.body.substitute(match);
@@ -235,6 +239,6 @@ export class PiDatabase {
     }
 
     toString() {
-        return this.rules.join('.\n') + '.';
+        return this.rules.join('\n') ;
     }
 }   

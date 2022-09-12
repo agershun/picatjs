@@ -1,0 +1,5 @@
+compress([X|Ys]) = compress(Ys), =(Ys,[X|_]) => true.
+compress([X|Ys]) = [X|compress(Ys)].
+compress(Ys) = Ys.
+
+main => println(99),println(compress([1,1])).

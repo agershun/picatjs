@@ -2,7 +2,7 @@ const {picat} = await import('../src/picat.js');
 const assert = await import('assert');
 
 describe('99. Ninety-Nine Picat Problems: Lists (http://picat-lang.org/p99/lists.html)', function () {
-
+/*
   it('P1_01. myLast(List)', function () {
     let result = picat.out(`
 
@@ -27,7 +27,7 @@ describe('99. Ninety-Nine Picat Problems: Lists (http://picat-lang.org/p99/lists
     assert.equal(result,'5');
   });
 
-//   it('P1_03. elementAt(Int,List)', function () {
+  it('P1_03. elementAt(Int,List)', function () {
 //     let result = picat.log(`
 
 // elementAt([X|_],1) = X.
@@ -37,7 +37,19 @@ describe('99. Ninety-Nine Picat Problems: Lists (http://picat-lang.org/p99/lists
 
 //     `);
 //     assert.equal(result,'3');
-//   });
+
+
+    let result = picat.val(`
+
+elementAt([X|_],1) = X.
+elementAt([_|Xs],K) = Kth, >(K,1) => =(Kth,elementAt(Xs,-(K,1))).
+
+
+    `, 'elementAt([1,2,3,4,5,6],3)');
+    // console.log(result);
+    assert.equal(result,3n);
+
+  });
 
   it('P2_04. myLength(List)', function () {
     let result = picat.out(`
@@ -108,16 +120,22 @@ describe('99. Ninety-Nine Picat Problems: Lists (http://picat-lang.org/p99/lists
 
      assert.deepEqual(result,`[1,2,3,4,5]`);
   });
-
+*/
   it('P2_08. myFlatten(List)', function () {
-    let result = picat.log(`
+    // let result = picat.val(`
 
-      compress([X|Ys @ [X|_]]) = compress(Ys).
-      compress([X|Ys]) = [X|compress(Ys)].
-      compress(Ys) = Ys.
+    //   compress([X|Ys @ [X|_]]) = compress(Ys) => println(100).
+    //   compress([X|Ys]) = [X|compress(Ys)] => println(200).
+    //   compress(Ys) = Ys => println(300).
+    //   `,`compress([1,1,2])`);
+let result = picat.log(`
+compress([X|Ys]) = compress(Ys), println(100), =(Ys,[X|_]),println(101) => true.
+compress([X|Ys]) = [X|compress(Ys)], println(200) => true.
+compress(Ys) = Ys.
 
-      main => print(compress([1,1])).
-    `);
+main => println(99),println(compress([1,1,2])).
+`);
+    console.log(133,result);
 //      compress([X|Ys]) = compress([X|_]), =(Ys,[X|_]) => true .
 //      compress([X,X|_]) = compress([X|_]).
 //      compress([X|[X|_]]) = compress([X|_]).

@@ -2,7 +2,8 @@ import {PiInt} from './PiInt.js';
 import {PiBool} from './PiBool.js';
 import {PiTerm} from './PiTerm.js';
 import {PiConjunction} from './PiConjunction.js';
-import {mergeBindings} from './utils.js';
+import {zip,mergeBindings} from './utils.js';
+
 
 export class PiDisjunction /*extends PiTerm*/ {
     constructor(args) {
@@ -79,5 +80,23 @@ export class PiDisjunction /*extends PiTerm*/ {
         }
         return new PiDisjunction(aa);
     }
+    match(other) {
+
+//        console.log(131);
+
+        if (other instanceof PiDisjunction) {
+            if (this.functor !== other.functor) {
+                return null;
+            }
+            if (this.args.length !== other.args.length) {
+                return null;
+            }
+            return zip([this.args, other.args]).map(function(args) {
+                return args[0].match(args[1]);
+            }).reduce(mergeBindings, new Map);
+        }
+        return other.match(this);
+    }
+
 
 }
