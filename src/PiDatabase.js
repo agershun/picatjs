@@ -6,15 +6,17 @@ import {TRUE, FAIL,PiBool} from './PiBool.js';
 import {PiConjunction} from './PiConjunction.js';
 
 export class PiDatabase {
-
     constructor(rules) {
         this.rules = rules;
+        this.val = undefined;
     }
 
     *query(goal) {
-//console.log(8,goal);
-
-        if(goal.functor == '=') {
+        this.val = undefined;
+        if(goal.functor == 'return') {
+            this.val = goal.args[0].value(this);
+            yield goal;
+        } else if(goal.functor == '=') {
             var r0 = goal.args[0];
             var r1 = goal.args[1];
             if(r0 instanceof PiVar && r1 instanceof PiVar) {
@@ -135,6 +137,16 @@ export class PiDatabase {
                 yield goal;        
                 this.cut = true;
             }
+        } else if(goal.functor == 'true') {
+            // console.log(501,goal.args[0]);
+            // console.log(501,goal.args[0].value(this));
+            // console.log(goal.args[0].value(this).toString());
+            yield goal;
+        } else if(goal.functor == 'fail') {
+            // console.log(501,goal.args[0]);
+            // console.log(501,goal.args[0].value(this));
+            // console.log(goal.args[0].value(this).toString());
+            // yield goal;
         } else if(goal.functor == 'println') {
             // console.log(501,goal.args[0]);
             // console.log(501,goal.args[0].value(this));
@@ -170,29 +182,52 @@ export class PiDatabase {
         } else {
 
             for (var i = 0, rule; rule = this.rules[i]; i++) {
+                if(goal.functor != rule.head.functor) continue;
+                if(goal.args.length != rule.head.args.length) continue;
+               if(!['.',':-','=>','?=>'].includes(rule.functor)) continue;
+
                 var fresh = rule.inst(new Map);
         //        console.log(334,fresh);
         //        var fresh = rule;
                 var match = fresh.head.match(goal);
-//                console.log(335,fresh.head,match);
+               // console.log(335,match);
                 if (match) {
+
                     var head = fresh.head.substitute(match);
-                    var body = fresh.body.substitute(match);
-
-//                    console.log(122,body);
-//                    console.log(116,[...body.query(this)]);
-                    for (var item of body.query(this)) {
-                        if(!this.cut) {
-                            var ret = head.substitute(body.match(item));
-                            // console.log(490, ret);
-    //                        ret.result = RES;
-    //                        ret.resname = RESNAME;
-
-                            //if(ret !== FAIL) 
-                            yield ret;
+                    if(!rule.body) {
+                        yield head;
+                    } else if(rule.functor == ':-') {
+                        var body = fresh.body.substitute(match);
+                        for (var item of body.query(this)) {
+                            if(!this.cut) {
+                                var ret = head.substitute(body.match(item));
+                                yield ret;
+                            }
                         }
-
-    //                    yield head.substitute(body.match(item));
+                    } else if(rule.functor == '=>') {
+                        if(fresh.cond) {
+                            var cond = fresh.cond.substitute(match);
+                            let condr = cond.query(this).next();
+                            if(condr.done) continue;
+                        }
+                        var body = fresh.body.substitute(match);
+//console.log(202,body);
+                        for (var item of body.query(this)) {
+//console.log(205,item);
+                            if(!this.cut) {
+                                var ret = head.substitute(body.match(item));
+                                yield ret;
+                            }
+                            this.cut = true;
+                        }
+                    } else if(rule.functor == '?=>') {
+                        var body = fresh.body.substitute(match);
+                        for (var item of body.query(this)) {
+                            if(!this.cut) {
+                                var ret = head.substitute(body.match(item));
+                                yield ret;
+                            }
+                        }                        
                     }
                 }
             }

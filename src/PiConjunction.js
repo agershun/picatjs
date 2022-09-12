@@ -4,7 +4,7 @@ import {PiTerm} from './PiTerm.js';
 import {mergeBindings} from './utils.js';
 import {PiDisjunction} from './PiDisjunction.js';
 
-export class PiConjunction extends PiTerm {
+export class PiConjunction /*extends PiTerm*/ {
     constructor(args) {
 //console.log(10,args);        
         if(args.find(arg => arg instanceof PiTerm && arg.functor == ';')) {
@@ -31,22 +31,25 @@ export class PiConjunction extends PiTerm {
             return new PiDisjunction(aad);
         }
 
-        super(',',args);
+//        super(',',args);
+        this.functor = ',';
+        this.args = args || [];
+
         //this.args = args;
     }
 
     *query(database) {
-//console.log(11);    
 
         var self = this;
         function* solutions(index, bindings) {
             var arg = self.args[index];
+ // console.log(48,index,self.args[index],bindings);    
             if (!arg) {
                 yield self.substitute(bindings);
             } else {
                 for (var item of database.query(arg.substitute(bindings))) {
                     var unified = mergeBindings(arg.match(item), bindings);
-                    if (unified) {
+                   if (unified) {
                         yield* solutions(index + 1, unified);
                     }
                 }

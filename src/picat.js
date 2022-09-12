@@ -97,12 +97,17 @@ picat.genvar = function (prog,que) {
                     } else if(key instanceof PiList) {
                         return key.items.map(d=>kr(d));
                     } else if(key instanceof PiTerm) {
-                        return key.args.map(d=>kr(d));
+                        if(key.args.length > 0) {
+                            return key.args.map(d=>kr(d));    
+                        } else {
+                            return key.functor;
+                        }
                     }
                 }
                 obj[value.name]=kr(key);
             });
     // console.log(67,m,obj);
+            if(Object.keys(obj)==0) obj = true;
             yield obj;
         }
     };
@@ -113,6 +118,14 @@ picat.var = function (prog,que) {
     let result = picat.genvar(prog,que);
        return [...result];
 }
+
+picat.val = function (prog,que) {
+    let {result,database} = picat(prog,`return(${que})`);
+    let res = result.next();
+    if(res.done) return;
+    else return database.val.val;
+}
+
 
 picat.genstr = function(prog,que) {
     let {result} = picat(prog,que);

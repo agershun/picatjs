@@ -19,9 +19,8 @@ describe('Database 01', function () {
     {
   rules: [
      {
-      body:  {
-        val: true
-      },
+      body: undefined,
+      cond: undefined,
       functor: '.',
       head:  {
         args: [

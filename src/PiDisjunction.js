@@ -4,11 +4,14 @@ import {PiTerm} from './PiTerm.js';
 import {PiConjunction} from './PiConjunction.js';
 import {mergeBindings} from './utils.js';
 
-export class PiDisjunction extends PiTerm {
+export class PiDisjunction /*extends PiTerm*/ {
     constructor(args) {
         // console.log('PD 9',args);
-        super(';',args);
+//        super(';',args);
         //this.args = args;
+        this.functor = ';';
+        this.args = args || [];
+
     }
 
     *query(database) {

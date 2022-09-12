@@ -1,0 +1,5 @@
+man(andrey). 
+human(A) ?=> man(A). 
+human(S) => =(S,sergey).
+
+main=>println(findall(A,human(A))).

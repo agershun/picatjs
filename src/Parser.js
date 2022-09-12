@@ -1,4 +1,5 @@
 import {PiRule} from './PiRule.js';
+import {PiFunc} from './PiFunc.js';
 import {PiTerm} from './PiTerm.js';
 import {PiVar} from './PiVar.js';
 import {PiList} from './PiList.js';
@@ -110,12 +111,15 @@ export function parser(tokens) {
     function parseRule() {
         ats = [];
         let functor;
-        var head = parseTerm();
-        var args = [];
+        let head = parseTerm();
+        let args = [];
+        let conds = [];
+        let expr = undefined;
 
         if (current === '.') {
             next(); // eat .
-            return new PiRule('.',head, TRUE);
+            return new PiRule('.',head);
+//            return new PiRule('.',head, TRUE);
         }
         if (current === ':-' || current === '?=>') {
             functor = current;
@@ -128,11 +132,16 @@ export function parser(tokens) {
 //            type = 'function';
             next(); // eat :-
         } else if (current === '=>') {
+            conds = args;
+            args = [];
             functor = current;
-            args.push(new PiTerm('!'));
+            // args.push(new PiTerm('!'));
             next(); // eat :-
             //throw new SyntaxError('Rule ' + current);
         } else if (current === ',') {
+            if(functor == '=') {
+                console.log(143);
+            }
             // Conditions
             while (current === ',') {
                 next();
@@ -140,7 +149,7 @@ export function parser(tokens) {
                 args.push(parseTerm());
 
                 if (current === '.') {
-                    var body;
+                    var body, cond;
                     if (args.length === 1) {
                         // body is a regular Term
                         body = args[0];
@@ -148,8 +157,19 @@ export function parser(tokens) {
                         // body is a conjunction of all terms
                         body = new PiConjunction(args);
                     }
+
+                    if (conds.length === 0) {
+                        cond = undefined;
+                    } else if (conds.length === 1) {
+                        // body is a regular Term
+                        cond = conds[0];
+                    } else {
+                        // body is a conjunction of all terms
+                        cond = new PiConjunction(conds);
+                    }
+//console.log(162);
               //      if(type == 'rule') {
-                        return new PiRule('.',head, body);    
+                        return new PiRule('.',head, cond, body);    
                 } else if (current === ':-' || current === '?=>') {
                     functor = current;
                     next(); // eat :-
@@ -161,8 +181,10 @@ export function parser(tokens) {
         //            type = 'function';
                     next(); // eat :-
                 } else if (current === '=>') {
+                    conds = args;
+                    args = [];                    
                     functor = current;
-                    args.push(new PiTerm('!'));
+                    // args.push(new PiTerm('!'));
                     next(); // eat :-
                 } else {
                     throw new SyntaxError('Expected , or ) in term but got ' + current);
@@ -179,8 +201,9 @@ export function parser(tokens) {
         }
         while (current !== '.') {
             args.push(parseTerm());
-            // console.log(173,args);
-            if (current !== ',' && current !== ';' && current !== '.') {
+            //console.log(173,args);
+            if (current !== ',' && current !== ';' && current !== '.' && current !== '=>') {
+                console.log(206,args);
                 throw new SyntaxError('Expected , or ) in term but got ' + current);
             }
             if (current === ';') {
@@ -188,10 +211,15 @@ export function parser(tokens) {
                 next(); // eat ,
             } else if (current === ',') {
                 next(); // eat ,
+            } else if (current === '=>') {
+                expr = args;
+                args = [];
+                // console.log(210,functor, args,conds);
+                next(); // eat ,
             }
         }
         next(); // eat .
-        var body;
+        var body,cond;
         if(ats.length > 0) {
             args = ats.concat(args);
         }
@@ -202,13 +230,49 @@ export function parser(tokens) {
             // body is a conjunction of all terms
             body = new PiConjunction(args);
         }
+
+        if (conds.length === 0) {
+            cond = undefined;
+        } else if (conds.length === 1) {
+            // body is a regular Term
+            cond = conds[0];
+        } else {
+            // body is a conjunction of all terms
+            cond = new PiConjunction(conds);
+        }
+// console.log(162);
+
   //      if(type == 'rule') {
         // if(ats.length > 0) {
 
         //     console.log(208,(new PiRule(functor,head, body)).toString());
         // }
+        // if(functor == '=>') {
+        //     console.log(212,functor,head,cond, body);
+        // }
+        if(functor == '=>' || functor == '?=>' || functor == ':-' ) {        
+            return new PiRule(functor,head, cond, body);    
+        } else if(functor == '=') {
+            // expr = body[0];
+            // body = body.slice(1);
+            // console.log(246,head, expr, cond, body);
+            if(body && !expr) {
+                expr = body;
+                body = undefined;
+            } else if(body && expr && expr.length >= 1) {
+                cond = expr.slice(1);
+                if(cond.length == 0) {
+                    cond = undefined;
+                } else if(cond.length == 1) {
+                    cond = cond[0];
+                } else {
+                    cond = new PiConjunction(cond);
+                }
+                expr = expr[0];
+            }
 
-            return new PiRule(functor,head, body);    
+            return new PiFunc(functor,head, expr, cond, body);    
+        }
         // } else {
         //     return new Rule(head, body);
         // }

@@ -2,7 +2,7 @@ import {PiRule} from './PiRule.js';
 import {PiVar} from './PiVar.js';
 import {PiInt} from './PiInt.js';
 import {PiList} from './PiList.js';
-//import {PiConjunction} from './PiConjunction.js';
+import {PiConjunction} from './PiConjunction.js';
 import {TRUE,FAIL,PiBool} from './PiBool.js';
 import {zip,mergeBindings} from './utils.js';
 
@@ -209,6 +209,8 @@ export class PiTerm {
             } else {
                 console.log(227,'not a number +');
             }
+        } else if(this.args.length == 0) {
+                return this;
         } else {
             // Попробовать найти как цель
     //        console.log('Пробуем доказать');
@@ -220,14 +222,47 @@ export class PiTerm {
             let pat = new PiTerm(this.functor,ars);
 
             for (var i = 0, rule; rule = database.rules[i]; i++) {
+                if(this.functor != rule.head.functor) continue;
+                if(this.args.length != rule.head.args.length) continue;
+                if(!['='].includes(rule.functor)) continue;
+
                 var fresh = rule.inst(new Map);
         //        console.log(334,fresh);
         //        var fresh = rule;
                 var match = fresh.head.match(pat);
         //        console.log(335,match);
                 if (match) {
+//console.log(15,this,fresh);
+
                     var head = fresh.head.substitute(match);
-                    var body = fresh.body.substitute(match);
+
+                    if(fresh.cond) {
+                        var cond = fresh.cond.substitute(match);
+                        let condr = cond.query(database).next();
+                        if(condr.done) continue;
+                    }
+
+                    if(!fresh.body) {
+                        var expr = fresh.expr.substitute(match);
+                        return expr.value(database);
+                    } else if(fresh.body) {
+                        // let resv = new PiVar('RESULT');
+                        let bodyn = new PiConjunction([fresh.body, new PiTerm('return',[fresh.expr]) ]);
+// console.log(251,match,bodyn.args);
+                        let body = bodyn.substitute(match);
+// console.log(253,match,body);
+//console.log(248,body);              
+                        let bodyr = database.query(body).next();
+// console.log(249,bodyr.value.args[1]);                        
+                        if(bodyr.done) continue;
+
+                        return database.val;
+                        // let body1 = bodyr.value.substitute(match);
+//console.log(250,match);
+//                        var expr = fresh.expr.substitute(match);
+//                        return expr.value(database);
+                    }
+
 
                     // console.log(294,head.toString(),'=',body.toString());
                     // console.log(295,body);
@@ -239,12 +274,11 @@ export class PiTerm {
                     //         return tbody.value(database);                            
                     //     }
                     // } else {
-                    return body.value(database);
                     // }
                     //return body.value();
    //                 console.log(295,body.value());
                 }
-            }
+            } 
             console.log(214, 'error: term value can not be calculated '+this.functor);
             return undefined;
         }
